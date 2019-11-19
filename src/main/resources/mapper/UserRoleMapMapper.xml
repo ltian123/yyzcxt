@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hg.yyzcxt.dao.UserRoleMapDao">
+
+	<resultMap type="com.hg.yyzcxt.entity.User" id="userMapper">
+		<id property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="phone" column="phone" />
+		<result property="createDate" column="createdate" />
+		<result property="email" column="email" />
+		<result property="sort" column="sort" />
+		<result property="state" column="state" />
+		<result property="field1" column="field1" />
+		<result property="field2" column="field2" />
+		<result property="field3" column="field3" />
+	</resultMap>
+	
+	<resultMap type="com.hg.yyzcxt.entity.Role" id="roleMapper">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="remark" column="remark" />
+		<result property="sort" column="sort" />
+		<result property="field1" column="field1" />
+		<result property="field2" column="field2" />
+		<result property="field3" column="field3" />
+	</resultMap>
+	
+	
+	   <select id="selectUsersbyRoleId" parameterType="Map" resultMap="userMapper">
+	select id ,username,phone,createdate,email,sort,
+		state,
+		field1,
+		field2,
+		field3 from (
+		select a.*,rownum r from (
+		select t.id,
+		t.username username,
+		t.phone phone,
+		t.CREATEDATE createdate,
+		t.EMAIL email,
+		t.SORT sort,
+		t.USER_STATE state,
+		t.FIELD1 field1,
+		t.FIELD2 field2,
+		t.FIELD3 field3
+		from t_user_role ur left join t_user t  on ur.user_id =t.id where ur.role_id  = #{roleId}	
+         ) a
+		) where 1=1 
+        <if test="start!=null and end!=null">
+        <![CDATA[
+           and r>=#{start} and r<=#{end}	
+           ]]>   
+        </if>
+    </select>
+    
+    <select id="countUsersbyRoleId" parameterType="Map" resultType="int">
+        select count(*) from t_user u,t_user_role ur  where  u.id=ur.user_id and ur.role_id  = #{roleId}	
+    </select>
+
+
+   <select id="selectRoleByUserId" parameterType="Map" resultMap="roleMapper">
+	select id ,name,remark,sort,
+		field1,
+		field2,
+		field3 from (
+		select a.*,rownum r from (
+		select t.id,
+		t.name name,
+		t.remark remark,
+		t.SORT sort,
+		t.FIELD1 field1,
+		t.FIELD2 field2,
+		t.FIELD3 field3
+		from t_user_role ur left join t_role t  on ur.role_id =t.id where ur.user_id  = #{userId}	
+         ) a
+		) where 1=1 
+        <if test="start!=null and end!=null">
+        <![CDATA[
+           and r>=#{start} and r<=#{end}	
+           ]]>   
+        </if>
+    </select>
+    
+    <select id="countRolesByUserId" parameterType="Map" resultType="int">
+        select count(*) from t_role u,t_user_role ur  where  u.id=ur.role_id and ur.user_id  = #{roleId}	
+    </select>
+</mapper>

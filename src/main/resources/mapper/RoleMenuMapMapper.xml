@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hg.yyzcxt.dao.UserRoleMapDao">
+
+	<resultMap type="com.hg.yyzcxt.entity.Menu" id="menuMapper">
+		<id property="id" column="id" />
+		<result property="pid" column="pid" />
+		<result property="name" column="name" />
+		<result property="url" column="url" />
+		<result property="remark" column="remark" />
+		<result property="menuicon" column="menuicon" />
+		<result property="isParentMenu" column="isParentMenu" />
+		<result property="sort" column="sort" />
+		<result property="field1" column="field1" />
+		<result property="field2" column="field2" />
+		<result property="field3" column="field3" />
+	</resultMap>
+	
+	
+	
+	   <select id="selectUsersbyRoleId" parameterType="Map" resultMap="menuMapper">
+	select id ,pid,name,url,remark,menuicon,isParentMenu,sort,
+		field1,
+		field2,
+		field3 from (
+		select a.*,rownum r from (
+		select t.id,
+		t.PID pid,
+		t.NAME name,
+		t.URL url,
+		t.REMARK remark,
+		t.MENUICON menuicon,
+		t.IS_PARENT_MENU isParentMenu,
+		t.SORT sort,
+		t.FIELD1 field1,
+		t.FIELD2 field2,
+		t.FIELD3 field3
+		from t_role_menu ur left join t_menu  t  on ur.menu_id =t.id where ur.role_id  = #{roleId}	
+         ) a
+		) where 1=1 
+        <if test="start!=null and end!=null">
+        <![CDATA[
+           and r>=#{start} and r<=#{end}	
+           ]]>   
+        </if>
+    </select>
+    
+    <select id="countMenusbyRoleId" parameterType="Map" resultType="int">
+        select count(*) from t_menu u,t_role_menu ur  where  u.id=ur.role_id and ur.role_id  = #{roleId}	
+    </select>
+
+	   <select id="selectAllMenusbyRoleId" parameterType="Map" resultMap="menuMapper">
+		select t.id,
+		t.PID pid,
+		t.NAME name,
+		t.URL url,
+		t.REMARK remark,
+		t.MENUICON menuicon,
+		t.IS_PARENT_MENU isParentMenu,
+		t.SORT sort,
+		t.FIELD1 field1,
+		t.FIELD2 field2,
+		t.FIELD3 field3
+		from t_role_menu ur left join t_menu  t  on ur.menu_id =t.id where ur.role_id  = #{roleId}	
+    </select>
+    
+    <select id="selectAllMenusbyUserId" parameterType="Map" resultMap="menuMapper">
+		select distinct t.id,
+		t.PID pid,
+		t.NAME name,
+		t.URL url,
+		t.REMARK remark,
+		t.MENUICON menuicon,
+		t.IS_PARENT_MENU isParentMenu,
+		t.SORT sort,
+		t.FIELD1 field1,
+		t.FIELD2 field2,
+		t.FIELD3 field3
+		from t_menu  t
+	    left join t_role_menu  rm  on rm.menu_id =t.id 
+	    left join t_user_role ur on rm.role_id = ur.role_id
+	    left join t_user u on u.id = ur.user_id
+	    where u.id  = #{userId}	
+    </select>
+    
+     <select id="selectRoleMenuMapbyUserIdandRoleId" parameterType="Map" resultType="com.hg.yyzcxt.entity.RoleMenuMap">
+		select rm.id id,rm.role_id roleId,rm.menu_id menuId,rm.ADD_AUTH addAuth,
+		rm.DEL_AUTH delAuth,rm.UPD_AUTH updAuth,rm.SORT sort,rm.FIELD1 field1,
+		rm.FIELD2 field2,rm.FIELD3 field3
+		from t_role_menu rm left join t_user_role ur on ur.role_id = rm.role_id 
+		where ur.user_id = #{userId}	 and rm.menu_id  = #{menuId}	and rownum=1
+    </select>
+    
+</mapper>
